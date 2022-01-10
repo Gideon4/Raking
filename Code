@@ -1,0 +1,125 @@
+import csv
+
+women = 0.50771
+men = 0.49229
+a18 = 0.07712
+a25 = 0.13886
+a35 = 0.12770
+a45 = 0.12449
+a55 = 0.29412
+
+#target proportions
+
+weights = [[1,"",""] for i in range(2000)]
+
+#[weight, m/f, age]
+
+with open("/Users/videogideo/Desktop/SampleSurveyData_Sheet3.csv", mode="r") as csv_file:
+        csvreader = csv.reader(csv_file)
+        
+        isfirst = True
+        
+        for row in csvreader:
+            if isfirst:
+                isfirst = False
+            else:
+                weights[int(row[0])-1][1] = row[49]
+                weights[int(row[0])-1][2] = row[50]
+                
+        #finishes the weights list
+
+for i in range(20):
+    with open("/Users/videogideo/Desktop/SampleSurveyData_Sheet3.csv", mode="r") as csv_file:
+        csvreader = csv.reader(csv_file)
+
+        samplewomen = 0
+        samplemen = 0
+
+        isfirst = True
+
+        for row in csvreader:
+            if isfirst:
+                isfirst = False
+            else:
+                if row[49] == "female":
+                    samplewomen += weights[int(row[0])-1][0]
+                else:
+                    samplemen += weights[int(row[0])-1][0]
+                    
+        #counts the number of of men/women * their weights
+                    
+    for item in weights:
+        if item[1] == "female":
+            item[0] *= women/(samplewomen/2000)
+        else:
+            item[0] *= men/(samplemen/2000)
+            
+    #muliplies each peron by the desired weight based on gender
+                    
+    with open("/Users/videogideo/Desktop/SampleSurveyData_Sheet3.csv", mode="r") as csv_file:
+        csvreader = csv.reader(csv_file)
+        
+        samplea18 = 0
+        samplea25 = 0
+        samplea35 = 0
+        samplea45 = 0
+        samplea55 = 0
+                    
+        isfirst = True
+        
+        for row in csvreader:
+            if isfirst:
+                isfirst = False
+            else:
+                if row[50] == "18 - 24":
+                    samplea18 += weights[int(row[0])-1][0]
+                elif row[50] == "25 - 34":
+                    samplea25 += weights[int(row[0])-1][0]
+                elif row[50] == "35 - 44":
+                    samplea35 += weights[int(row[0])-1][0]
+                elif row[50] == "45 - 54":
+                    samplea45 += weights[int(row[0])-1][0]
+                else:
+                    samplea55 += weights[int(row[0])-1][0]
+                    
+    for item in weights:
+        if item[2] == "18 - 24":
+            item[0] *= a18/(samplea18/2000)
+        elif item[2] == "25 - 34":
+            item[0] *=  a25/(samplea25/2000)
+        elif item[2] == "35 - 44":
+            item[0] *=  a35/(samplea35/2000)
+        elif item[2] == "45 - 54":
+            item[0] *=  a45/(samplea45/2000)
+        else:
+            item[0] *= a55/(samplea55/2000)
+            
+    #same as above but for age
+
+total = [0 for i in range(5)]
+weightedtotal = [0 for i in range(5)]
+
+file = open("Raked_Prop_Weights.txt", "w")
+for person in weights:
+    file.write(str(person[0])+"\n")
+file.close()
+
+#total is a list of how many people answered each value in question 2
+#weightedtotal is a list of the sum of the weights of the people who
+#answered each value in question 2
+    
+with open("/Users/videogideo/Desktop/SampleSurveyData_Sheet3.csv", mode="r") as csv_file:
+    csvreader = csv.reader(csv_file)
+    
+    isfirst = True
+    
+    for row in csvreader:
+        if isfirst:
+            isfirst = False
+        else:
+            total[int(row[4])-1] += 1
+            weightedtotal[int(row[4])-1] += weights[int(row[0])-1][0]
+    
+print("Question 2:")
+for i in range(5):
+    print(str(total[i]/2000) + "\t" + str(weightedtotal[i]/sum(weightedtotal)))
